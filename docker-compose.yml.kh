@@ -1,7 +1,7 @@
 x-common-config: &common-config
   build:
     context: .
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.kh
   volumes:
     - ~/.nanobot:/root/.nanobot
   env_file:
