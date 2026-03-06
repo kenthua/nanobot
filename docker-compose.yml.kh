@@ -4,6 +4,7 @@ x-common-config: &common-config
     dockerfile: Dockerfile.kh
   volumes:
     - ~/.nanobot:/root/.nanobot
+    - ~/.nanobot-config:/root/.config
   env_file:
     - .env
   image: ${NANOBOT_IMAGE}
