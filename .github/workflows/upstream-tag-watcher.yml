@@ -90,20 +90,20 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      - name: Merge upstream tag
+      - name: Rebase upstream tag
         if: ${{ steps.check_build.outputs.build == 'true' }}
-        id: merge
+        id: rebase
         env:
           TAG: ${{ steps.get_tag.outputs.tag }}
         run: |
-          echo "Attempting to merge upstream tag $TAG into kh-oc"
-
-          # Try to merge. If it conflicts, checking will fail and workflow stops.
-          # This is safer than auto-resolving.
-          if git merge $TAG --no-edit; then
-            echo "Merge successful."
+          echo "Attempting to rebase kh branch onto upstream tag $TAG"
+          
+          # Try to rebase. If it conflicts, checking will fail and workflow stops.
+          if git rebase $TAG; then
+            echo "Rebase successful."
           else
-            echo "::error::Merge failed due to conflicts. Manual intervention required."
+            echo "::error::Rebase failed due to conflicts. Manual intervention required."
+            git rebase --abort
             exit 1
           fi
 
@@ -123,3 +123,9 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-kh
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Push rebased branch
+        if: ${{ steps.check_build.outputs.build == 'true' }}
+        run: |
+          echo "Pushing rebased kh branch to origin"
+          git push origin kh --force-with-lease
